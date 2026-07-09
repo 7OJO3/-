@@ -1,7 +1,8 @@
+require('ffmpeg-static');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DisTube } = require('distube');
+const { YTDLPlugin } = require('@distube/ytdl');
 
-// 1. إعدادات البوت الأساسية
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -11,52 +12,33 @@ const client = new Client({
     ]
 });
 
-// 2. إعداد DisTube
-const distube = new DisTube(client, { 
-    searchSongs: 0, 
-    emitNewSongOnly: true 
+// إعداد المشغل مع إضافة الـ YTDLPlugin لضمان عمل اليوتيوب
+const distube = new DisTube(client, {
+    plugins: [new YTDLPlugin()]
 });
-
-// ضعي هنا الـ ID الخاص بالقناة الصوتية التي تريدين دخولها تلقائياً
-const VOICE_CHANNEL_ID = '1524788602582597904';
 
 client.on('ready', () => {
-    console.log(البوت شغال كـ: ${client.user.tag});
-
-    // الانضمام التلقائي عند تشغيل البوت
-    const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
-    if (channel) {
-        distube.voices.join(channel);
-        console.log("تم الانضمام للقناة الصوتية بنجاح!");
-    } else {
-        console.log("خطأ: تأكدي من ID القناة!");
-    }
+    console.log(`البوت متصل كـ: ${client.user.tag}`);
 });
 
-// 3. نظام الأوامر
-client.on('messageCreate', (message) => {
+// التعامل مع الأوامر
+client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.content.startsWith('!')) return;
 
     const args = message.content.slice(1).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
-    // أمر التشغيل
     if (command === 'play') {
-        const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
-        if (!channel) return message.reply('القناة الصوتية غير موجودة!');
-        distube.play(channel, args.join(' '), { message });
-    }
-
-    // أمر التخطي
-    if (command === 'skip') {
-        distube.skip(message);
-        message.reply('تم التخطي! ⏭️');
-    }
-
-    // أمر الإيقاف
-    if (command === 'stop') {
-        distube.stop(message);
-        message.reply('تم الإيقاف! ⏹️');
+        const voiceChannel = message.member?.voice.channel;
+        if (!voiceChannel) return message.reply('ادخلي قناة صوتية أولاً!');
+        
+        // إظهار رسالة تفاعل لنتأكد أن البوت سمع الأمر
+        message.reply('جاري البحث والتشغيل... 🎵');
+        
+        distube.play(voiceChannel, args.join(' '), {
+            message,
+            textChannel: message.channel,
+        });
     }
 });
 
