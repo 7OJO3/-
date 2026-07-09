@@ -1,6 +1,7 @@
 require('ffmpeg-static');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DisTube } = require('distube');
+const { YTDLPlugin } = require('@distube/ytdl');
 
 const client = new Client({
     intents: [
@@ -11,13 +12,16 @@ const client = new Client({
     ]
 });
 
-// إعداد DisTube بدون أي خيارات معقدة لتجنب الأخطاء
-const distube = new DisTube(client);
-
-client.on('ready', () => {
-    console.log(`البوت شغال كـ: ${client.user.tag}`);
+// إعداد المشغل مع إضافة الـ YTDLPlugin لضمان عمل اليوتيوب
+const distube = new DisTube(client, {
+    plugins: [new YTDLPlugin()]
 });
 
+client.on('ready', () => {
+    console.log(`البوت متصل كـ: ${client.user.tag}`);
+});
+
+// التعامل مع الأوامر
 client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.content.startsWith('!')) return;
 
@@ -28,23 +32,13 @@ client.on('messageCreate', async (message) => {
         const voiceChannel = message.member?.voice.channel;
         if (!voiceChannel) return message.reply('ادخلي قناة صوتية أولاً!');
         
+        // إظهار رسالة تفاعل لنتأكد أن البوت سمع الأمر
+        message.reply('جاري البحث والتشغيل... 🎵');
+        
         distube.play(voiceChannel, args.join(' '), {
             message,
             textChannel: message.channel,
         });
-    }
-
-    if (command === 'skip') {
-        const queue = distube.getQueue(message);
-        if (queue) {
-            queue.skip();
-            message.reply('⏭️ تم التخطي!');
-        }
-    }
-
-    if (command === 'stop') {
-        distube.stop(message);
-        message.reply('⏹️ تم الإيقاف.');
     }
 });
 
