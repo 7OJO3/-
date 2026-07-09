@@ -1,7 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DisTube } = require('distube');
 
-// 1. إعدادات البوت الأساسية (يجب أن يكون client في البداية)
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -11,47 +10,48 @@ const client = new Client({
     ]
 });
 
-// 2. إعداد DisTube (مرة واحدة فقط وبدون searchSongs التي تسبب خطأ)
-const distube = new DisTube(client, { 
-    emitNewSongOnly: true 
-});
+const distube = new DisTube(client, { emitNewSongOnly: true });
 
-const VOICE_CHANNEL_ID = '1524788602582597904';
+// عند تشغيل أغنية جديدة
+distube.on("playSong", (queue, song) => 
+    queue.textChannel.send(`🎶 بدأت الأغنية: **${song.name}**`)
+);
 
-client.on('ready', () => {
-    console.log(`البوت شغال كـ: ${client.user.tag}`);
-    
-    // الانضمام التلقائي
-    const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
-    if (channel) {
-        distube.voices.join(channel);
-        console.log("تم الانضمام للقناة الصوتية بنجاح!");
-    } else {
-        console.log("خطأ: تأكدي من ID القناة!");
-    }
-});
-
-// 3. نظام الأوامر
-client.on('messageCreate', (message) => {
+client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.content.startsWith('!')) return;
 
     const args = message.content.slice(1).trim().split(/ +/);
     const command = args.shift().toLowerCase();
+    const voiceChannel = message.member.voice.channel;
 
     if (command === 'play') {
-        const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
-        if (!channel) return message.reply('القناة الصوتية غير موجودة!');
-        distube.play(channel, args.join(' '), { message });
+        if (!voiceChannel) return message.reply('يجب أن تكوني في قناة صوتية أولاً!');
+        distube.play(voiceChannel, args.join(' '), {
+            message,
+            textChannel: message.channel,
+        });
     }
 
     if (command === 'skip') {
-        distube.skip(message);
-        message.reply('تم التخطي! ⏭️');
+        const queue = distube.getQueue(message);
+        if (queue) {
+            queue.skip();
+            message.reply('⏭️ تم تخطي الأغنية!');
+        } else {
+            message.reply('لا يوجد شيء لتخطيه!');
+        }
     }
 
     if (command === 'stop') {
         distube.stop(message);
-        message.reply('تم الإيقاف! ⏹️');
+        message.reply('⏹️ تم إيقاف الموسيقى ومغادرة القناة.');
+    }
+
+    if (command === 'volume') {
+        const volume = parseInt(args[0]);
+        if (isNaN(volume) || volume < 0 || volume > 100) return message.reply('الرجاء تحديد مستوى صوت بين 0 و 100');
+        distube.setVolume(message, volume);
+        message.reply(`🔊 تم ضبط الصوت على ${volume}%`);
     }
 });
 
