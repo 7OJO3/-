@@ -1,0 +1,17 @@
+{
+  "name": "music-bot",
+  "version": "1.0.0",
+  "description": "بوت اغاني",
+  "main": "index66.js",
+  "scripts": {
+    "start": "node index66.js"
+  },
+  "dependencies": {
+    "discord.js": "latest",
+    "distube": "latest",
+    "@discordjs/voice": "latest",
+    "@discordjs/opus": "latest",
+    "ffmpeg-static": "latest",
+    "ytdl-core": "latest"
+  }
+}
