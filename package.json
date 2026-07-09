@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index66.js",
   "scripts": {
-    "start": "node index66.js"
+    "start": "node index66.js",
+    "install": "npm install"
   },
   "dependencies": {
     "discord.js": "latest",
@@ -11,7 +12,6 @@
     "@discordjs/voice": "latest",
     "@discordjs/opus": "latest",
     "ffmpeg-static": "latest",
-    "@distube/ytdl": "latest",
-    "@distube/ytdl-core": "latest"
+    "@distube/ytdl": "latest"
   }
 }
