@@ -1,4 +1,3 @@
-require('ffmpeg-static');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DisTube } = require('distube');
 const { YTDLPlugin } = require('@distube/ytdl');
