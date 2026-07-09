@@ -1,8 +1,7 @@
-require('ffmpeg-static'); // لضمان عمل معالجة الصوت
+require('ffmpeg-static');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DisTube } = require('distube');
 
-// إعداد صلاحيات البوت للوصول للرسائل والقنوات الصوتية
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -12,41 +11,22 @@ const client = new Client({
     ]
 });
 
-// إعداد محرك الموسيقى
-const distube = new DisTube(client, { 
-    emitNewSongOnly: true,
-    leaveOnEmpty: true,
-    leaveOnFinish: true
-});
+// إعداد DisTube بدون أي خيارات معقدة لتجنب الأخطاء
+const distube = new DisTube(client);
 
-const VOICE_CHANNEL_ID = '1524788602582597904';
-
-// حدث عند جاهزية البوت
 client.on('ready', () => {
     console.log(`البوت شغال كـ: ${client.user.tag}`);
-    
-    // محاولة الانضمام للروم التلقائي
-    const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
-    if (channel) {
-        distube.voices.join(channel)
-            .then(() => console.log("تم الانضمام للقناة الصوتية بنجاح!"))
-            .catch(err => console.error("فشل الانضمام للقناة:", err));
-    } else {
-        console.log("خطأ: لا يمكن العثور على القناة الصوتية بالـ ID المحدد.");
-    }
 });
 
-// نظام الأوامر
 client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.content.startsWith('!')) return;
 
     const args = message.content.slice(1).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
-    // أمر التشغيل
     if (command === 'play') {
         const voiceChannel = message.member?.voice.channel;
-        if (!voiceChannel) return message.reply('يجب أن تكوني في قناة صوتية أولاً!');
+        if (!voiceChannel) return message.reply('ادخلي قناة صوتية أولاً!');
         
         distube.play(voiceChannel, args.join(' '), {
             message,
@@ -54,23 +34,18 @@ client.on('messageCreate', async (message) => {
         });
     }
 
-    // أمر التخطي
     if (command === 'skip') {
         const queue = distube.getQueue(message);
         if (queue) {
             queue.skip();
-            message.reply('⏭️ تم تخطي الأغنية!');
-        } else {
-            message.reply('لا يوجد شيء لتخطيه!');
+            message.reply('⏭️ تم التخطي!');
         }
     }
 
-    // أمر الإيقاف
     if (command === 'stop') {
         distube.stop(message);
-        message.reply('⏹️ تم إيقاف الموسيقى.');
+        message.reply('⏹️ تم الإيقاف.');
     }
 });
 
-// تسجيل الدخول باستخدام التوكين المحفوظ في إعدادات النظام
 client.login(process.env.TOKEN);
