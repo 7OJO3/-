@@ -1,37 +1,20 @@
-require('ffmpeg-static');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DisTube } = require('distube');
 
 const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
 
-// إعداد DisTube بسيط جداً
 const distube = new DisTube(client);
 
-client.on('ready', () => {
-    console.log(`البوت متصل كـ: ${client.user.tag}`);
-});
+client.on('ready', () => console.log('البوت شغال!'));
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot || !message.content.startsWith('!')) return;
-
-    const args = message.content.slice(1).trim().split(/ +/);
+client.on('messageCreate', (message) => {
+    if (!message.content.startsWith('!')) return;
+    const args = message.content.slice(1).split(/ +/);
     const command = args.shift().toLowerCase();
-
     if (command === 'play') {
-        const voiceChannel = message.member?.voice.channel;
-        if (!voiceChannel) return message.reply('يجب أن تكوني في قناة صوتية أولاً!');
-        
-        distube.play(voiceChannel, args.join(' '), {
-            message,
-            textChannel: message.channel,
-        });
+        distube.play(message.member.voice.channel, args.join(' '), { message, textChannel: message.channel });
     }
 });
 
