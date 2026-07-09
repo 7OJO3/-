@@ -21,8 +21,7 @@ const distube = new DisTube(client, {
 const VOICE_CHANNEL_ID = '1524788602582597904';
 
 client.on('ready', () => {
-    console.log(البوت شغال كـ: ${client.user.tag});
-
+console.log(`البوت شغال كـ: ${client.user.tag}`);
     // الانضمام التلقائي عند تشغيل البوت
     const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
     if (channel) {
