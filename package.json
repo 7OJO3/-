@@ -10,6 +10,8 @@
     "distube": "latest",
     "@discordjs/voice": "latest",
     "@discordjs/opus": "latest",
-    "ytdl-core": "latest"
+    "ffmpeg-static": "latest",
+    "@distube/ytdl": "latest",
+    "@distube/ytdl-core": "latest"
   }
 }
