@@ -1,0 +1,15 @@
+{
+  "name": "music-bot",
+  "version": "1.0.0",
+  "description": "بوت اغاني",
+  "main": "index66.js",
+  "scripts": {
+    "start": "node index66.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "distube": "^4.16.0",
+    "@discordjs/voice": "^0.16.1",
+    "libsodium-wrappers": "^0.7.13"
+  }
+}
