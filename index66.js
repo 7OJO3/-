@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { DisTube } = require('distube');
-
+const distube = new DisTube(client, { 
+    emitNewSongOnly: true 
+});
 // 1. إعدادات البوت الأساسية
 const client = new Client({
     intents: [
